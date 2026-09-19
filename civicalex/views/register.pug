@@ -1,0 +1,70 @@
+extends layouts/main
+
+block content
+  .auth-container
+    .auth-form
+      h2 Register with CivicaLex
+      
+      if error
+        .error-message(role='alert', aria-live='polite')= error
+      if errors && errors.length
+        .error-message(role='alert', aria-live='polite')
+          ul
+            each error in errors
+              li= error.msg
+      form#register-form(method='POST', action='/register')
+        //  CSRF Token for form protection
+        input(type='hidden', name='_csrf', value=csrfToken)
+        
+        .form-group
+          label(for='name') Full Name
+          input#name(
+            type='text',
+            name='name',
+            required,
+            placeholder='Enter your full name',
+            oninput='this.value = this.value.trimStart().replace(/\\s+/g, " ")'
+          )
+        .form-group
+          label(for='email') Email
+          input#email(
+            type='email',
+            name='email',
+            required,
+            placeholder='Enter your email'
+          )
+        .form-group
+          label(for='password') Password
+          small.text-muted Password must be at least 6 characters
+          .password-input-container
+            input#password(
+              type='password',
+              name='password',
+              required,
+              minlength='6',
+              placeholder='Enter password'
+            )
+            button.password-toggle(type='button', onclick='togglePassword("password")') Show
+        .form-group
+          label(for='phone') Phone (Optional)
+          input#phone(
+            type='tel',
+            name='phone',
+            placeholder='Enter your phone number (eg +911234567890)'
+          )
+
+        .form-group
+          label(for='address') Address (Optional)
+          textarea#address(
+            name='address',
+            rows='3',
+            placeholder='Enter your address'
+          )
+        button(type='submit') Register
+      p Already have an account? 
+        a(href='/login') Login here
+      if errors && errors.length
+        .error-message(role='alert', aria-live='polite')
+          ul
+            each error in errors
+              li= error.msg || error.message || JSON.stringify(error)

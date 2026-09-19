@@ -1,0 +1,45 @@
+footer.footer
+  .container
+    .footer-content
+      .footer-section
+        h3 About CivicaLex
+        p Making legal information accessible to every Indian citizen
+        p.footer-social
+          a(href='https://www.instagram.com/uttam.b.c/', aria-label='Instagram') Instagram
+          a(href='https://x.com/uttam_b_c', aria-label='Twitter') 🐦Twitter
+          a(href='https://www.linkedin.com/in/uttam-b-c-573123290/', aria-label='LinkedIn') 💼Linkdin
+      
+      .footer-section
+        h3 Quick Links
+        ul
+          li: a(href='/') Home
+          li: a(href='/about') About
+          li: a(href='/services') Services
+          li: a(href='/contact') Contact
+          li: a(href='/faq') FAQ
+      
+      .footer-section
+        h3 Legal
+        ul
+          li: a(href='/law') Areas of Law
+          li: a(href='/act/central') Central Acts
+          li: a(href='/act/state') State Acts
+          li: a(href='/privacy') Privacy Policy
+          li: a(href='/terms') Terms of Service
+      
+      .footer-section
+        h3 Contact Info
+        p 📧 Email: 
+          a(href=`mailto:${process.env.CONTACT_EMAIL || 'uttambc03@gmail.com'}`) #{process.env.CONTACT_EMAIL || 'uttambc03@gmail.com'}
+        p 📞 Phone: 
+          a(href=`tel:${process.env.CONTACT_PHONE || '+91 7892546347'}`) #{process.env.CONTACT_PHONE || '+91 7892546347'}
+        p 📍 Bangalore, India
+    
+    .footer-bottom
+      p &copy; 2025 CivicaLex. All rights reserved.
+      p
+        a(href='/privacy') Privacy
+        |  | 
+        a(href='/terms') Terms
+        |  | 
+        a(href='/faq') FAQ

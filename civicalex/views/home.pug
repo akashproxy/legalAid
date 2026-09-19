@@ -1,0 +1,44 @@
+extends layouts/main
+
+block content
+  .hero-section
+    .container
+      .hero-content
+        h1 Trusted Legal Platform
+        p CivicaLex simplifies access to legal and civic information for Indian citizens
+        .hero-buttons.mt-3
+          a.btn(href='/login') Log In
+          a.btn.secondary(href='/register') Create Account
+      .hero-image
+        img(
+          src='/images/hero.jpeg'
+          alt='Indian citizens accessing legal information through the CivicaLex digital platform'
+          loading='lazy'
+          decoding='async'
+          width='100%'
+          height='100%'
+        )
+
+  .chatbot-section
+    .container
+      h2 Ask Legal Questions
+      .chatbot-container
+        .chat-messages#chat-messages(aria-live="polite")
+          .message.bot-message
+            p Welcome to CivicaLex! How can I help you with legal information today?
+        .chat-input-container
+          input.law-chat-input#chat-input(
+            type='text'
+            aria-label='Ask a legal question'
+            placeholder='Ask anything about legal matters...'
+          )
+          button#send-btn Send
+
+  .features-section
+    .container
+      h2 Features Available After Login
+      .features-grid
+        each feature in features
+          .feature-box
+            h3= feature.title
+            p= feature.description

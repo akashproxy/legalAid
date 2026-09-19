@@ -1,0 +1,18 @@
+// views/partials/header.pug
+header.navbar
+  .container
+    .logo
+      a(href='/')
+        span.logo-text CivicaLex
+    nav.nav-menu
+      ul
+        li: a(href='/') Home
+        li: a(href='/about') About
+        li: a(href='/contact') Contact
+        li: a(href='/services') Services
+        if typeof user !== 'undefined' && user
+          li: a.nav-btn(href='/dashboard') Dashboard
+          li: a.nav-btn.nav-btn-outline(href='/logout') Logout
+        else
+          li: a.nav-btn(href='/login') Login
+    button.menu-toggle(aria-label="Toggle Menu") ☰

@@ -1,0 +1,286 @@
+extends layouts/main
+
+block styles
+  link(rel='stylesheet', href='/css/dashboard.css')
+
+block content
+  .dashboard-container
+    .dashboard-header
+      .user-profile
+        .profile-pic
+          img(
+            src= user.profilePicture || '/images/profile-placeholder.jpg',
+            alt='Profile Picture for #{user.name}',
+            width='80',
+            height='80'
+          )
+        .user-info
+          h3= user.name
+          p #{user.email}
+          if user.phone
+            p Phone: #{user.phone}
+          if user.address
+            p Address: #{user.address}
+          p Last Login: #{user.lastLogin ? user.lastLogin.toLocaleString() : 'First Login'}
+
+    .quick-stats
+      h2 Quick Stats
+      .stats-grid
+        .stat-card
+          h3 Total Cases
+          .stat-value= stats.totalCases
+          .stat-breakdown
+            p Pending: #{stats.pendingCases}
+            p Closed: #{stats.closedCases}
+            p Upcoming: #{stats.upcomingCases}
+        .stat-card
+          h3 Petitions
+          .stat-value= stats.totalPetitions
+          .stat-breakdown
+            p Drafted: #{stats.draftedPetitions}
+            p Submitted: #{stats.submittedPetitions}
+            p Approved: #{stats.approvedPetitions}
+        .stat-card
+          h3 Actions
+          .quick-actions
+            a.btn(href='/dashboard/add-petition') Create Petition
+            a.btn(href='/dashboard/add-case') Add Case
+            a.btn(href='/dashboard/upload-document') Upload Documents
+
+    .dashboard-sections
+      .section
+        h3 Case Management
+        .section-content
+          form#add-case-form(method='POST', action='/dashboard/add-case')
+            input(type='hidden', name='_csrf', value=csrfToken)
+            .form-row
+              .form-group
+                label(for='title') Case Title
+                input#title(type='text', name='title', required, placeholder='Enter case title')
+              .form-group
+                label(for='type') Case Type
+                select#type(name='type', required)
+                  option(value='') Select Case Type
+                  option(value='Civil') Civil
+                  option(value='Criminal') Criminal
+                  option(value='Family') Family
+                  option(value='Constitutional') Constitutional
+                  option(value='Commercial') Commercial
+                  option(value='Labor') Labor
+                  option(value='Tax') Tax
+                  option(value='Property') Property
+                  option(value='Other') Other
+            .form-row
+              .form-group
+                label(for='court') Court
+                input#court(type='text', name='court', required, placeholder='Enter court name')
+              .form-group
+                label(for='caseNumber') Case Number
+                input#caseNumber(type='text', name='caseNumber', required, placeholder='Enter case number')
+            .form-row
+              .form-group
+                label(for='plaintiff') Plaintiff
+                input#plaintiff(type='text', name='plaintiff', required, placeholder='Enter plaintiff name')
+              .form-group
+                label(for='defendant') Defendant
+                input#defendant(type='text', name='defendant', required, placeholder='Enter defendant name')
+            .form-row
+              .form-group
+                label(for='filingDate') Filing Date
+                input#filingDate(type='date', name='filingDate')
+              .form-group
+                label(for='nextHearing') Next Hearing
+                input#nextHearing(type='date', name='nextHearing')
+            button(type='submit') Add Case
+
+          .cases-list
+            h4 My Cases
+            if cases && cases.length > 0
+              each caseItem in cases
+                .case-item(data-case-id=caseItem._id.toString())
+                  .case-title #{caseItem.title}
+                  .case-details
+                    p #{caseItem.type} | #{caseItem.court} | Case #: #{caseItem.caseNumber}
+                    .status(class=`status-${caseItem.status.toLowerCase()}`)
+                      | #{caseItem.status}
+                    if caseItem.nextHearing
+                      p Next Hearing: #{caseItem.nextHearing.toLocaleDateString()}
+            else
+              p No cases found. Create your first case!
+
+      .section
+        h3 Petitions Module
+        .section-content
+          form#add-petition-form(method='POST', action='/dashboard/add-petition')
+            input(type='hidden', name='_csrf', value=csrfToken)
+            .form-group
+              label(for='petition-title') Petition Title
+              input#petition-title(type='text', name='title', required, placeholder='Enter petition title')
+            .form-group
+              label(for='petition-description') Description
+              textarea#petition-description(name='description', rows='4', required, placeholder='Enter petition description')
+            .form-row
+              .form-group
+                label(for='petition-type') Petition Type
+                select#petition-type(name='type', required)
+                  option(value='') Select Petition Type
+                  option(value='Civil Writ') Civil Writ
+                  option(value='Criminal Petition') Criminal Petition
+                  option(value='Public Interest Petition') Public Interest Petition
+                  option(value='Administrative Request') Administrative Request
+                  option(value='Constitutional Petition') Constitutional Petition
+                  option(value='Commercial Petition') Commercial Petition
+            .form-row
+              .form-group
+                label(for='petition-court') Court
+                input#petition-court(type='text', name='court', required, placeholder='Enter court name')
+              .form-group
+                label(for='petition-caseNumber') Case Number
+                input#petition-caseNumber(type='text', name='caseNumber', placeholder='Enter case number (if applicable)')
+            button(type='submit') Add Petition
+
+          .petitions-list
+            h4 My Petitions
+            if petitions && petitions.length > 0
+              each petitionItem in petitions
+                .petition-item(data-petition-id=petitionItem._id.toString())
+                  .petition-title #{petitionItem.title}
+                  .petition-details
+                    p #{petitionItem.type} | #{petitionItem.court}
+                    .status(class=`status-${petitionItem.status.toLowerCase()}`)
+                      | #{petitionItem.status}
+                    if petitionItem.filingDate
+                      p Filed: #{petitionItem.filingDate.toLocaleDateString()}
+            else
+              p No petitions found. Create your first petition!
+
+      .section
+        h3 Documents / Evidence
+        .section-content
+          form#upload-document-form(method='POST', action='/dashboard/upload-document', enctype='multipart/form-data')
+            input(type='hidden', name='_csrf', value=csrfToken)
+            .form-group
+              label(for='document-upload') Upload Document
+              input#document-upload(type='file', name='document', required, accept='.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png')
+            .form-row
+              .form-group
+                label(for='document-category') Category
+                select#document-category(name='category', required)
+                  option(value='') Select Category
+                  option(value='Evidence') Evidence
+                  option(value='Affidavit') Affidavit
+                  option(value='Notice') Notice
+                  option(value='Order') Order
+                  option(value='Petition') Petition
+                  option(value='Judgment') Judgment
+                  option(value='Contract') Contract
+                  option(value='Agreement') Agreement
+                  option(value='Other') Other
+              .form-group
+                label(for='document-description') Description
+                input#document-description(type='text', name='description', placeholder='Enter document description')
+            .form-row
+              .form-group
+                label(for='document-caseId') Related to Case
+                input#document-caseId(type='text', name='caseId', placeholder='Case ID')
+              .form-group
+                label(for='document-petitionId') Related to Petition
+                input#document-petitionId(type='text', name='petitionId', placeholder='Petition ID')
+            button(type='submit') Upload Document
+
+          .documents-grid
+            h4 My Documents
+            if documents && documents.length > 0
+              each documentItem in documents
+                .document-card
+                  .document-icon 📄
+                  .document-name= documentItem.fileName
+                  .document-type= documentItem.fileType
+                  .document-actions
+                    a.btn(href=`/documents/${documentItem._id.toString()}/view`, target='_blank') View
+                    a.btn(href=`/documents/${documentItem._id.toString()}/download`) Download
+                    form(action=`/documents/${documentItem._id.toString()}/delete`, method='POST', style='display:inline')
+                      input(type='hidden', name='_csrf', value=csrfToken)
+                      button.btn.delete-btn(type='submit', onclick='return confirm("Delete this document?")') Delete
+            else
+              p No documents uploaded yet.
+
+      .section
+        h3 Court Calendar
+        .section-content
+          .calendar-placeholder
+            h4 Upcoming Hearings
+            ul#upcoming-hearings
+              if upcomingHearings && upcomingHearings.length > 0
+                each hearing in upcomingHearings
+                  li
+                    strong #{hearing.caseTitle}
+                    br
+                    if hearing.date
+                      | Date: #{hearing.date.toLocaleDateString()}
+                    else
+                      | Date: Not scheduled
+                    br
+                    | Court: #{hearing.court}
+              else
+                li No upcoming hearings scheduled
+            button#add-reminder-btn(
+              type="button",
+              aria-label="Add court hearing reminder"
+            ) Add Reminder
+            p You can sync with your external calendar for automatic reminders
+
+      .section
+        h3 AI Legal Draft Assistant
+        .section-content
+          .ai-assistant-container
+            .ai-chat-messages#ai-chat-messages
+            input(type="hidden", id="csrf-token", value=csrfToken)
+            .ai-chat-input-container
+              input#ai-chat-input(type='text' placeholder='Ask something...')
+              button#ai-send-btn Send
+
+
+      .section
+        h3 Case Dashboard
+        .section-content
+          .dashboard-filters
+            button.filter-btn.active(data-filter='all') All
+            button.filter-btn(data-filter='pending') Pending
+            button.filter-btn(data-filter='closed') Closed
+            button.filter-btn(data-filter='upcoming') Upcoming
+
+          .dashboard-search
+            input(type='text', placeholder='Search cases...', id='case-search')
+            button Search
+
+          .cases-list#dashboard-cases
+            if allCases && allCases.length > 0
+              each caseItem in allCases
+                .case-item(data-status=caseItem.status)
+                  .case-title #{caseItem.title}
+                  .case-details
+                    p #{caseItem.type} | #{caseItem.court} | Case #: #{caseItem.caseNumber}
+                    .status(class=`status-${caseItem.status.toLowerCase()}`)
+                      | #{caseItem.status}
+                    if caseItem.nextHearing
+                      p Next Hearing: #{caseItem.nextHearing.toLocaleDateString()}
+                    p Last Updated: #{caseItem.updatedAt.toLocaleDateString()}
+            else
+              p No cases found.
+
+      .section
+        h3 Notifications
+        .section-content
+          .notifications-list
+            if notifications && notifications.length > 0
+              each notification in notifications
+                .notification-item(class=notification.isRead ? 'read' : 'unread')
+                  h4= notification.title
+                  p= notification.message
+                  .notification-meta
+                    | #{notification.createdAt.toLocaleString()} | #{notification.type}
+                  if !notification.isRead
+                    button.mark-read-btn(onclick=`markNotificationAsRead('${notification._id}')`) Mark as Read
+            else
+              p No notifications.
